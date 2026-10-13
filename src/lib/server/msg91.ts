@@ -10,8 +10,15 @@ export async function sendWithMsg91(config: Msg91Config, phone: string, code: st
     body: "{}", cache: "no-store", redirect: "error", signal: AbortSignal.timeout(12000),
   });
   const result = await response.json();
-  if (!response.ok || result?.type !== "success" || typeof result.message !== "string" || !result.message)
+  // Send confirmation is not phone verification. The provider's explicit
+  // successful type and 2xx status confirm acceptance; message is optional.
+  if (!response.ok || result?.type !== "success") {
+    console.error(JSON.stringify({
+      event: "msg91_send_response_rejected", httpStatus: response.status,
+      providerType: result?.type === "error" ? "error" : result?.type === "success" ? "success" : "unknown",
+    }));
     throw new Error("MSG91_SEND_REJECTED");
+  }
 }
 export async function verifyWithMsg91(config: Msg91Config, phone: string, code: string, transport: Fetcher = fetch): Promise<boolean> {
   const url = new URL("https://control.msg91.com/api/v5/otp/verify");

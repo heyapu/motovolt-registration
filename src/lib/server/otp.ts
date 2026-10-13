@@ -6,7 +6,17 @@ const config = () => ({ authKey: required("MSG91_AUTH_KEY"), templateId: require
 export async function deliverOtp(phone: string, code: string): Promise<void> {
   if (demoEnabled()) return;
   try { await sendWithMsg91(config(), phone, code); }
-  catch { throw new AppError("OTP_DELIVERY_FAILED", "Could not send the OTP. Wait a minute and request a new code.", 502); }
+  catch (error) {
+    // Never log the raw error, URL, provider body, phone, OTP or auth key.
+    const name = error instanceof Error ? error.name : "";
+    const reason = error instanceof Error && error.message === "MSG91_SEND_REJECTED" ? "provider_rejected"
+      : ["TimeoutError", "AbortError"].includes(name) ? "timeout"
+      : name === "SyntaxError" ? "invalid_provider_json" : "transport_failure";
+    console.error(JSON.stringify({ event: "msg91_send_failed", reason }));
+    throw new AppError("OTP_DELIVERY_FAILED", reason === "timeout"
+      ? "MSG91 did not confirm the request in time. An SMS may still arrive. Wait a minute, then request a fresh code."
+      : "Could not confirm the OTP request with MSG91. Wait a minute and request a fresh code.", 502);
+  }
 }
 export async function confirmProviderOtp(phone: string, code: string): Promise<boolean> {
   if (demoEnabled()) return code === "123456";
