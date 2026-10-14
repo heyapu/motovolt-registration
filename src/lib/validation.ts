@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getDealer } from "./dealers";
 
 export function normalizePhone(value: string): string {
   const cleaned = value.trim().replace(/[ ()-]/g, "");
@@ -22,16 +23,19 @@ export const startSchema = z.object({
 }).strict();
 export const verifySchema = z.object({ attemptId: z.uuid(), code: z.string().regex(/^\d{6}$/, "Enter the six-digit OTP.") }).strict();
 export const fieldsSchema = z.object({
-  dealerName: z.string().trim().min(2,"Enter the dealer or store name.").max(120).refine(v => !/[\u0000-\u001f\u007f]/.test(v), "Dealer name contains invalid characters."),
+  dealerId: z.string().max(64).refine(v => Boolean(getDealer(v)), "Choose a dealer from the list."),
+  gender: z.enum(["male", "female", "non_binary"], { error: "Select a gender." }),
+  proofId: z.string().max(36),
   customerName: z.string().trim().min(2, "Enter the customer’s name.").max(100).refine(v => !/[\u0000-\u001f\u007f]/.test(v), "Name contains invalid characters."),
   email: z.string().trim().max(254).pipe(z.email({ error: "Enter a valid email address." })).transform(v => v.toLowerCase()),
   age: z.string().trim().regex(/^\d{1,3}$/, "Enter age in whole years.").refine(v => Number(v) >= 1 && Number(v) <= 120, "Age must be between 1 and 120."),
   productId: z.enum(["urbn", "hum", "kivo", "m7"], { error: "Select a product." }),
-  batteryId: identifier,
-  vin: identifier,
+  batteryId: identifier.refine(v => Boolean(v), "Battery ID is required."),
+  vin: identifier.refine(v => Boolean(v), "VIN number is required."),
   paymentMode: z.enum(["cash", "upi", "card", "finance"], { error: "Select a payment mode." }),
 }).strict();
-export const submitSchema = fieldsSchema.extend({ attemptId: z.uuid(), requestId: z.uuid(), website: z.string().max(200).default("") }).strict();
+export const submitSchema = fieldsSchema.extend({ proofId: z.uuid({ error: "Upload the payment proof before submitting." }), attemptId: z.uuid(), requestId: z.uuid(), website: z.string().max(200).default("") }).strict();
+export const proofSchema = z.object({ attemptId: z.uuid(), proofId: z.uuid(), paymentMode: z.enum(["cash","upi","card","finance"]), website: z.string().max(200).default("") }).strict();
 export const resumeSchema = z.object({ phone: phoneSchema }).strict();
 export const existingSchema = z.object({
   phone: phoneSchema, batteryId: identifier.default(""), vin: identifier.default(""), attemptId: z.uuid(),

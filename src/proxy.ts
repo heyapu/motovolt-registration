@@ -9,7 +9,7 @@ export function proxy(request: NextRequest) {
     "style-src 'self' 'unsafe-inline'",
     `connect-src 'self' https://challenges.cloudflare.com${development ? " ws: wss:" : ""}`,
     "frame-src https://challenges.cloudflare.com",
-    "img-src 'self' data:",
+    "img-src 'self' data: blob:",
     "font-src 'self'",
     "worker-src 'self'",
     "manifest-src 'self'",

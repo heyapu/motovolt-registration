@@ -51,6 +51,7 @@ export function validateConfiguration(): void {
     "MSG91_TEMPLATE_ID",
     "TURNSTILE_SITE_KEY",
     "TURNSTILE_SECRET_KEY",
+    "UPLOADTHING_TOKEN",
   ])
     required(name);
   for (const name of ["OTP_HMAC_SECRET", "CRON_SECRET"]) {
@@ -67,6 +68,8 @@ export function validateConfiguration(): void {
     if (/^[123]x0+(AA|BB|FF)$/.test(required(name))) configError(`${name} contains a Turnstile test key. Use the key from your real widget.`);
   }
   const cap = Number(process.env.OTP_DAILY_SEND_LIMIT || 1000);
+  if (!["private", "public-read"].includes(process.env.UPLOADTHING_FILE_ACL || "private"))
+    configError("UPLOADTHING_FILE_ACL must be private or public-read.");
   if (!Number.isInteger(cap) || cap < 1 || cap > 100000)
     configError("OTP_DAILY_SEND_LIMIT must be a positive integer up to 100000.");
   if (sheetsEnabled()) {

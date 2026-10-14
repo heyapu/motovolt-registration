@@ -5,6 +5,13 @@ import { demoRpc } from "./demo";
 import { AppError } from "./errors";
 
 const messages: Record<string, [string, number]> = {
+  INVALID_DEALER: ["Choose a dealer from the list.", 400],
+  PROOF_REQUIRED: ["Upload the receipt or payment confirmation first.", 400],
+  PROOF_MISMATCH: ["This image belongs to a different phone or payment mode. Choose the correct image.", 409],
+  PROOF_PENDING: ["This image is still uploading. Please retry shortly.", 409],
+  PROOF_LIMIT: ["Too many image uploads for this number. Please try later.", 429],
+  PROOF_LEASE_EXPIRED: ["Image upload was interrupted. Please retry.", 409],
+  DUPLICATE_PROOF: ["This payment image is already used for another entry. Upload the correct proof.", 409],
   ATTEMPT_NOT_FOUND: [
     "This verification could not be found. Request a new OTP.",
     404,

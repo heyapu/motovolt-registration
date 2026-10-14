@@ -1,0 +1,7 @@
+.control { display:flex;flex-direction:column;gap:8px;position:relative;font-size:14px;font-weight:600;
+ input {width:100%;min-width:0;box-sizing:border-box;border:1px solid #d7dde5;border-radius:10px;padding:13px 14px;font:inherit;font-weight:400;background:#fff;color:#162235;
+ &:focus {outline:2px solid #edcf17;outline-offset:2px;} &:disabled {background:#f4f6f8;} }
+}
+.options {position:absolute;top:100%;left:0;right:0;z-index:10;max-height:280px;overflow:auto;padding:6px;margin:6px 0 0;list-style:none;background:white;box-shadow:0 10px 30px #16223520;border:1px solid #d7dde5;border-radius:10px;
+ li {padding:10px;border-radius:6px;cursor:pointer;overflow-wrap:anywhere;font-weight:400;display:flex;flex-direction:column;gap:5px;} small {color:#667386;} li:hover,.active {background:#fff8c6;} .empty {cursor:default;color:#667386;font-size:12px;}
+}

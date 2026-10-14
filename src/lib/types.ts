@@ -9,7 +9,9 @@ export type Verification = {
   attemptsRemaining?: number;
 };
 export type RegistrationFields = {
-  dealerName: string;
+  dealerId: string;
+  gender: "" | "male" | "female" | "non_binary";
+  proofId: string;
   customerName: string;
   email: string;
   age: string;
@@ -21,6 +23,9 @@ export type RegistrationFields = {
 export type Receipt = {
   id: string;
   dealerName: string;
+  dealerId: string | null;
+  gender: "male" | "female" | "non_binary" | null;
+  paymentProofUrl: string | null;
   phone: string;
   customerName: string;
   email: string;
@@ -40,7 +45,11 @@ export type SavedDraft = {
   fields: RegistrationFields;
   queued: boolean;
   savedAt: number;
+  proofImage?: Blob;
+  proofUploaded?: boolean;
 };
 export type ExistingCheck = { phoneExists: boolean; batteryExists: boolean; vinExists: boolean };
 export type SheetJob = { submissionId: string; row: number; values: string[] };
 export const PAYMENT_LABELS = { cash: "Cash", upi: "UPI", card: "Credit Card / Debit Card", finance: "Finance" } as const;
+export const GENDER_LABELS = { male: "Male", female: "Female", non_binary: "Non Binary" } as const;
+export type PaymentProof = { id: string; url: string; width: number; height: number; byteSize: number };

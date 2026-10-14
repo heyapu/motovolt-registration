@@ -11,14 +11,15 @@ export class ApiError extends Error {
 export async function api<T>(path: string, body?: unknown): Promise<T> {
   let response: Response;
   try {
+    const multipart = body instanceof FormData;
     response = await fetch(path, {
       method: body === undefined ? "GET" : "POST",
       credentials: "same-origin",
       cache: "no-store",
       headers:
-        body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(30000),
+        body === undefined || multipart ? undefined : { "Content-Type": "application/json" },
+      body: body === undefined ? undefined : multipart ? body as FormData : JSON.stringify(body),
+      signal: AbortSignal.timeout(path === "/api/proofs" ? 55000 : 30000),
     });
   } catch {
     throw new ApiError(

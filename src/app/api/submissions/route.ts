@@ -19,7 +19,7 @@ export const POST = route(async request => {
     p_browser_id: browserId, p_attempt_id: input.attemptId, p_request_id: input.requestId,
     p_customer_name: input.customerName, p_email: input.email, p_age: Number(input.age),
     p_product_id: input.productId, p_battery_id: input.batteryId, p_vin: input.vin, p_payment_mode: input.paymentMode,
-    p_dealer_name: input.dealerName,
+    p_dealer_id: input.dealerId, p_gender: input.gender, p_proof_id: input.proofId,
   });
   // The durable backup and retry job are committed before contacting Google.
   // Google failure NEVER rolls back or duplicates a confirmed registration.

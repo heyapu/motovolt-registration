@@ -1,0 +1,5 @@
+.proof {display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;border:1px solid #d7dde5;border-radius:10px;
+ label {font-weight:600;} p {margin:0;font-size:13px;line-height:1.5;color:#4c5c70;} input {max-width:100%;font-size:13px;} small {font-size:12px;color:#667386;line-height:1.5;} .error {color:#ab2b21;}
+}
+.preview {max-width:100%;width:500px;height:280px;object-fit:contain;border-radius:8px;background:#f6f8fa;}
+.proof input::file-selector-button {border:0;background:#172537;color:#fff;padding:10px 14px;border-radius:7px;margin-right:10px;cursor:pointer;}

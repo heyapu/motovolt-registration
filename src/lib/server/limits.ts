@@ -137,3 +137,11 @@ export async function limitSubmit(
     { key: `submit:ip:${clientIp(request)}`, max: 120, windowMs: 60000 },
   ]);
 }
+export async function limitProofUpload(request: Request, browserId: string, phone: string): Promise<void> {
+  await enforce([
+    { key: `upload:phone:${phone}`, max: 10, windowMs: 3600000 },
+    { key: `upload:browser:${browserId}`, max: 20, windowMs: 3600000 },
+    { key: `upload:ip:${clientIp(request)}`, max: 60, windowMs: 3600000 },
+    { key: "upload:global", max: 2000, windowMs: 86400000 },
+  ]);
+}

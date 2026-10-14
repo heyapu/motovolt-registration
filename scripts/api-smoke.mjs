@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
+import sharp from "sharp";
 import { randomUUID } from "node:crypto";
 
 const origin = "http://localhost:3130";
@@ -15,13 +16,13 @@ function browser() {
   return async (path, body, headers = {}) => {
     const response = await fetch(origin + path, {
       method: body === undefined ? "GET" : "POST",
-      headers: { ...(body === undefined ? {} : { "Content-Type": "application/json", Origin: origin }), ...(cookie ? { Cookie: cookie } : {}), ...headers },
-      body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(30000),
+      headers: { ...(body === undefined ? {} : { ...(body instanceof FormData ? {} : { "Content-Type": "application/json" }), Origin: origin }), ...(cookie ? { Cookie: cookie } : {}), ...headers },
+      body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body), signal: AbortSignal.timeout(30000),
     });
     const cookies = response.headers.getSetCookie();
     if (cookies.length) cookie = cookies.map(v => v.split(";")[0]).join("; ");
     let data = null;
-    try { data = await response.json(); } catch {}
+    if(!response.headers.get("content-type")?.startsWith("image/"))try { data = await response.json(); } catch {}
     return { status: response.status, data, headers: response.headers };
   };
 }
@@ -59,18 +60,37 @@ async function main() {
   check((await a("/api/otp/verify", { attemptId, code: "123456" })).data.verification.status, "verified");
   check((await a("/api/otp/resume", { phone })).data.verification.id, attemptId);
   check((await a("/api/registrations/check", { phone, attemptId })).data.phoneExists, false);
+  const proofId=randomUUID();
+  const png=await sharp({create:{width:1200,height:600,channels:3,background:{r:30,g:80,b:160}}}).png().toBuffer();
+  const upload=(id=proofId,mode="upi",bytes=png,attempt=attemptId)=>{const f=new FormData();f.set("attemptId",attempt);f.set("proofId",id);f.set("paymentMode",mode);f.set("image",new Blob([bytes],{type:"image/png"}),"receipt.png");return f;};
+  check((await a("/api/proofs",upload(),{Origin:"https://other.example"})).status,403);
+  check((await a("/api/proofs",upload(randomUUID(),"upi",Buffer.from("not an image")))).status,400);
+  const uploaded=await a("/api/proofs",upload());check(uploaded.status,200);
+  check(uploaded.data.proof.width,500);check(uploaded.data.proof.height,250);
+  check(uploaded.data.proof.key,undefined);
+  check((await a("/api/proofs",upload())).data.proof.id,proofId);
+  check((await a("/api/proofs",upload(proofId,"cash"))).status,409);
+  const view=new URL(uploaded.data.proof.url);check((await a(view.pathname+view.search)).headers.get("content-type"),"image/webp");
+  check((await a("/api/proofs/view?id="+proofId)).status,404);
   const requestId = randomUUID();
-  const payload = { attemptId, requestId, dealerName: " Motovolt Kolkata ", customerName: "HTTP Smoke Test", email: "Smoke@Example.com", age: "32", productId: "m7", batteryId: "bat-smoke", vin: "vin-smoke", paymentMode: "upi" };
+  const payload = { attemptId, requestId, dealerId:"1", gender:"male", proofId, customerName: "HTTP Smoke Test", email: "Smoke@Example.com", age: "32", productId: "m7", batteryId: "bat-smoke", vin: "vin-smoke", paymentMode: "upi" };
   check((await a("/api/submissions", { ...payload, verified: true })).status, 400);
   check((await a("/api/submissions", { ...payload, phone: "9999999999" })).status, 400);
   check((await a("/api/submissions", { ...payload, website: "spam.example" })).status, 400);
+  check((await a("/api/submissions",{...payload,batteryId:""})).status,400);
+  check((await a("/api/submissions",{...payload,vin:""})).status,400);
+  check((await a("/api/submissions",{...payload,gender:"unknown"})).status,400);
+  check((await a("/api/submissions",{...payload,dealerId:"fake"})).status,400);
+  check((await a("/api/submissions",{...payload,proofId:randomUUID()})).status,400);
+  check((await a("/api/submissions",{...payload,paymentProofUrl:"https://forged.example/proof.webp"})).status,400);
   const saved = await a("/api/submissions", payload);
   check(saved.status, 200); check(saved.data.receipt.id, requestId);
-  check(saved.data.receipt.dealerName, "Motovolt Kolkata");
+  check(saved.data.receipt.dealerName, "Motovolt- Authorised | VIRUKSHAM INDUSTRIAL INNOVATORS");
+  check(saved.data.receipt.gender,"male");check(saved.data.receipt.paymentProofUrl,uploaded.data.proof.url);
   check(saved.data.receipt.email, "smoke@example.com"); check(saved.data.receipt.vin, "VIN-SMOKE");
   check(saved.data.receipt.sheetStatus, "pending");
   check((await a("/api/submissions", payload)).data.receipt.id, requestId);
-  check((await a("/api/submissions", { ...payload, dealerName: "Different Dealer" })).status, 409);
+  check((await a("/api/submissions", { ...payload, dealerId: "2" })).status, 409);
   check((await a("/api/submissions/status", { requestId })).data.receipt.id, requestId);
   check((await a("/api/otp/start", { ...start, requestId: randomUUID() })).status, 409);
   check((await a("/api/jobs/sheets", {})).status, 403);
@@ -84,7 +104,16 @@ async function main() {
   check((await b("/api/otp/verify", { attemptId: nextAttempt, code: "123456" })).status, 200);
   const existing = await b("/api/registrations/check", { phone: nextPhone, attemptId: nextAttempt, vin: "vin-smoke", batteryId: "bat-smoke" });
   check(existing.data.vinExists, true); check(existing.data.batteryExists, true);
-  check((await b("/api/submissions", { ...payload, requestId: randomUUID(), attemptId: nextAttempt })).status, 409);
+  check((await b("/api/proofs",upload(randomUUID(),"upi",png,nextAttempt))).status,409);
+  const png2=await sharp({create:{width:600,height:1200,channels:3,background:{r:180,g:40,b:80}}}).png().toBuffer();
+  const secondProof=randomUUID();
+  const cashUpload=await b("/api/proofs",upload(secondProof,"cash",png2,nextAttempt));check(cashUpload.status,200);check(cashUpload.data.proof.height,500);
+  const second={...payload,dealerId:"2",gender:"non_binary",proofId:secondProof,paymentMode:"cash",requestId:randomUUID(),attemptId:nextAttempt};
+  check((await b("/api/submissions",second)).status,409);
+  check((await b("/api/submissions",{...second,vin:"VIN-SECOND",batteryId:"BAT-SECOND",paymentMode:"upi"})).status,409);
+  const cashSaved=await b("/api/submissions",{...second,vin:"VIN-SECOND",batteryId:"BAT-SECOND"});check(cashSaved.status,200);check(cashSaved.data.receipt.paymentMode,"cash");
+  check((await browser()(view.pathname+view.search)).status,200);
+  check((await a("/api/jobs/proofs",{})).status,403);
   console.log(`Passed ${checks} HTTP checks against the isolated local demo. No external services were used.`);
 }
 try { await main(); }
