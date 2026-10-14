@@ -7,12 +7,28 @@ import { demoEnabled, sheetsEnabled } from "@/lib/server/env";
 import { rpc } from "@/lib/server/database";
 import { syncSheets } from "@/lib/server/sync";
 import type { Receipt } from "@/lib/types";
+
+import { getDealer } from "@/lib/dealers";
+import { AppError } from "@/lib/server/errors";
+
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export const POST = route(async request => {
   checkOrigin(request);
   const browserId = await requireBrowser();
   const input = await readJson(request, submitSchema);
+
+
+  const dealer = getDealer(input.dealerId);
+
+  if (!dealer) {
+    throw new AppError(
+      "INVALID_DEALER",
+      "Select a dealer from the dropdown.",
+      400,
+    );
+  }
+
   checkHoneypot(input.website);
   await limitSubmit(request, browserId);
   const saved = await rpc<Receipt>("form_submit", {
@@ -20,6 +36,7 @@ export const POST = route(async request => {
     p_customer_name: input.customerName, p_email: input.email, p_age: Number(input.age),
     p_product_id: input.productId, p_battery_id: input.batteryId, p_vin: input.vin, p_payment_mode: input.paymentMode,
     p_dealer_id: input.dealerId, p_gender: input.gender, p_proof_id: input.proofId,
+    p_dealer_name: dealer.name,
   });
   // The durable backup and retry job are committed before contacting Google.
   // Google failure NEVER rolls back or duplicates a confirmed registration.
