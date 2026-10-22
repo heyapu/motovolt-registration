@@ -1753,10 +1753,10 @@ export const DEALERS: readonly Dealer[] = [
   }
   , {
     "id": "269",
-    "name": "Motovolt- Choudhary Motors",
+    "name": "Motovolt Exclusive - Chaudhary Motors",
     "city": "Delhi",
     "state": "New Delhi",
-    "address": ""
+    "address": "Ground Floor, Shop, RR-26, 1, Main Rohtak Road, Block RR, Mianwali Nagar, Paschim Vihar, New Delhi, 110087"
   }
 ];
 const dealerById = new Map(DEALERS.map(d => [d.id, d]));
