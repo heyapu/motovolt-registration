@@ -1752,7 +1752,7 @@ export const DEALERS: readonly Dealer[] = [
     "address": "NUTAN HATTALA, M G ROAD, UKHRA, Bardhaman, West Bengal, 713363"
   }
   , {
-    "id": "269",
+    "id": "260",
     "name": "Motovolt Exclusive - Chaudhary Motors",
     "city": "Delhi",
     "state": "New Delhi",
