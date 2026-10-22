@@ -1751,6 +1751,13 @@ export const DEALERS: readonly Dealer[] = [
     "state": "West Bengal",
     "address": "NUTAN HATTALA, M G ROAD, UKHRA, Bardhaman, West Bengal, 713363"
   }
+  , {
+    "id": "259",
+    "name": "Motovolt- Choudhary Motors",
+    "city": "Delhi",
+    "state": "New Delhi",
+    "address": ""
+  }
 ];
 const dealerById = new Map(DEALERS.map(d => [d.id, d]));
 export const getDealer = (id: string): Dealer | undefined => dealerById.get(id);
