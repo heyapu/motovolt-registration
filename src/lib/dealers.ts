@@ -1693,7 +1693,7 @@ export const DEALERS: readonly Dealer[] = [
     "name": "Motovolt- Authorised | VEENUS CYCLE MART",
     "city": "Kollam",
     "state": "Kerala",
-    "address": "Main road,  Puthoor junction, Kollam, 691507,Kerala"
+    "address": "Main road, Puthoor junction, Kollam, 691507,Kerala"
   },
   {
     "id": "252",
@@ -1750,13 +1750,34 @@ export const DEALERS: readonly Dealer[] = [
     "city": "Bardhaman",
     "state": "West Bengal",
     "address": "NUTAN HATTALA, M G ROAD, UKHRA, Bardhaman, West Bengal, 713363"
-  }
-  , {
+  },
+  {
     "id": "260",
     "name": "Motovolt Exclusive - Chaudhary Motors",
     "city": "Delhi",
     "state": "New Delhi",
     "address": "Ground Floor, Shop, RR-26, 1, Main Rohtak Road, Block RR, Mianwali Nagar, Paschim Vihar, New Delhi, 110087"
+  },
+  {
+    "id": "261",
+    "name": "Motovolt Exclusive - VIP wheels",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "address": "Ground Floor, GST Bhawan, 2083, Rajdanga Main Road, near Ruby Crossing, Narkelbagan, Sector F, East Kolkata Township, Kolkata, West Bengal 700107"
+  },
+  {
+    "id": "262",
+    "name": "Motovolt Exclusive - Arpan Automobile",
+    "city": "Bankura",
+    "state": "West Bengal",
+    "address": "Rajagram Puabagan Rd, near UCO BANK, Rajagram, West Bengal 722146"
+  },
+  {
+    "id": "263",
+    "name": "Motovolt Exclusive - Paine Swapnapuran E Motors & Solution",
+    "city": "North 24 Pargana",
+    "state": "West Bengal",
+    "address": "Bergoom, Habra, North 24 Parganas, West Bengal"
   }
 ];
 const dealerById = new Map(DEALERS.map(d => [d.id, d]));
