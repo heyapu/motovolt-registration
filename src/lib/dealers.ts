@@ -1778,6 +1778,13 @@ export const DEALERS: readonly Dealer[] = [
     "city": "North 24 Pargana",
     "state": "West Bengal",
     "address": "Bergoom, Habra, North 24 Parganas, West Bengal"
+  },
+  {
+    "id": "264",
+    "name": "M/S- SHRI BALA JI AND MADHO COMPANY",
+    "city": "Varanasi",
+    "state": "Uttar Pradesh",
+    "address": "D65/461 B, LAHARTARA CROSSING, NEAR VIDHAN TRAVELS, Varanasi, Varanasi, Uttar Pradesh, 221106"
   }
 ];
 const dealerById = new Map(DEALERS.map(d => [d.id, d]));
