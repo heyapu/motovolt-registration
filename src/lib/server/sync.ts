@@ -11,8 +11,28 @@ export async function syncSheets(submissionId: string | null = null): Promise<{ 
     if (!jobs.length) return { synced, failed };
     let write: (job: SheetJob) => Promise<void>;
     try { write = await sheetWriter(jobs); }
-    catch {
-      for (const job of jobs) await rpc("form_finish_sheet_job", { p_worker_id: worker, p_submission_id: job.submissionId, p_success: false, p_error: "GOOGLE_SETUP_OR_CONNECTION" });
+    catch (error) {
+      // Store only known error codes; never log credentials or raw responses.
+      const code =
+        error instanceof Error &&
+          /^(GOOGLE|SHEETS)_[A-Z0-9_]+$/.test(error.message)
+          ? error.message
+          : "GOOGLE_SETUP_OR_CONNECTION";
+
+      console.error({
+        event: "sheets_setup_failed",
+        code,
+      });
+
+      for (const job of jobs) {
+        await rpc("form_finish_sheet_job", {
+          p_worker_id: worker,
+          p_submission_id: job.submissionId,
+          p_success: false,
+          p_error: code,
+        });
+      }
+
       return { synced, failed: jobs.length };
     }
     for (const job of jobs) {
