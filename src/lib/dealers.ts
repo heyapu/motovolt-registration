@@ -1567,7 +1567,7 @@ export const DEALERS: readonly Dealer[] = [
     "name": "Motovolt- Authorised | NAVYA DISTRIBUTORS",
     "city": "Solapur",
     "state": "Maharashtra",
-    "address": "H. NO. B/116/1, G.P.M. NEW VIDI GHARKUL, NEW VIDI GHARKUL , FIRST WATER TANK, KUMBHARI ROAD, Kumbhari, Solapur, Maharashtra, 413006"
+    "address": "Plot No : C/1/1/A MIDC , Akkalkot Road, Near Sadul Petrol Pump, Solapur 413006"
   },
   {
     "id": "234",
