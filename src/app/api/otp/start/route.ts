@@ -49,10 +49,6 @@ export const POST = route(async (request) => {
       throw error;
   }
   await requireBotCheck(input.captchaToken, browserId, input.requestId);
-  const exists = await rpc<{ phoneExists: boolean }>("form_check_existing", {
-    p_browser_id: browserId, p_phone: input.phone, p_battery_id: "", p_vin: "", p_attempt_id: null,
-  });
-  if (exists.phoneExists) throw new AppError("DUPLICATE_PHONE", "This phone number is already registered.", 409);
   await limitSend(request, browserId, input.phone);
   const code = demoEnabled() ? "123456" : generateOtp();
   const created = await rpc<{ created: boolean; verification: Verification }>(

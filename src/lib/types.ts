@@ -16,6 +16,10 @@ export type RegistrationFields = {
   email: string;
   age: string;
   productId: string;
+  colour: string;
+  connectivity: "" | "standard" | "smart_plus";
+  rangeVariant: "" | "normal" | "long";
+  chargerType: "" | "normal" | "fast";
   batteryId: string;
   vin: string;
   paymentMode: "" | "cash" | "upi" | "card" | "finance";
@@ -28,9 +32,14 @@ export type Receipt = {
   paymentProofUrl: string | null;
   phone: string;
   customerName: string;
-  email: string;
+  email: string | null;
   age: number;
   productName: string;
+  colour: string | null;
+  connectivity: "standard" | "smart_plus" | null;
+  rangeVariant: "normal" | "long" | null;
+  chargerType: "normal" | "fast" | null;
+  purchaseStatus: PurchaseStatus;
   batteryId: string | null;
   vin: string | null;
   paymentMode: "cash" | "upi" | "card" | "finance";
@@ -53,3 +62,5 @@ export type SheetJob = { submissionId: string; row: number; values: string[] };
 export const PAYMENT_LABELS = { cash: "Cash", upi: "UPI", card: "Credit Card / Debit Card", finance: "Finance" } as const;
 export const GENDER_LABELS = { male: "Male", female: "Female", non_binary: "Non Binary" } as const;
 export type PaymentProof = { id: string; url: string; width: number; height: number; byteSize: number };
+
+export type PurchaseStatus = { count: number; limit: number; remaining: number; resetsAt: string };

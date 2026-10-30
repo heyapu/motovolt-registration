@@ -42,7 +42,7 @@ async function main() {
   const start = { requestId: attemptId, phone, consent: true };
   check((await a("/api/otp/start", start)).status, 401);
   const form = await a("/api/form");
-  check(form.status, 200); check(form.data.demo, true); check(form.data.products.length, 4);
+  check(form.status, 200); check(form.data.demo, true); check(form.data.products.length, 8);
   check(form.headers.get("cache-control"), "private, no-store, max-age=0");
   check(form.headers.getSetCookie()[0].includes("HttpOnly"), true);
   check((await a("/api/auth/login", {})).status, 404);
@@ -66,14 +66,14 @@ async function main() {
   check((await a("/api/proofs",upload(),{Origin:"https://other.example"})).status,403);
   check((await a("/api/proofs",upload(randomUUID(),"upi",Buffer.from("not an image")))).status,400);
   const uploaded=await a("/api/proofs",upload());check(uploaded.status,200);
-  check(uploaded.data.proof.width,500);check(uploaded.data.proof.height,250);
+  check(uploaded.data.proof.width,1080);check(uploaded.data.proof.height,540);
   check(uploaded.data.proof.key,undefined);
   check((await a("/api/proofs",upload())).data.proof.id,proofId);
   check((await a("/api/proofs",upload(proofId,"cash"))).status,409);
   const view=new URL(uploaded.data.proof.url);check((await a(view.pathname+view.search)).headers.get("content-type"),"image/webp");
   check((await a("/api/proofs/view?id="+proofId)).status,404);
   const requestId = randomUUID();
-  const payload = { attemptId, requestId, dealerId:"1", gender:"male", proofId, customerName: "HTTP Smoke Test", email: "Smoke@Example.com", age: "32", productId: "m7", batteryId: "bat-smoke", vin: "vin-smoke", paymentMode: "upi" };
+  const payload = { attemptId, requestId, dealerId:"1", gender:"male", proofId, customerName: "HTTP Smoke Test", email: "Smoke@Example.com", age: "32", productId: "m7", colour:"Yellow",connectivity:"",rangeVariant:"",chargerType:"", batteryId: "bat-smoke", vin: "vin-smoke", paymentMode: "upi" };
   check((await a("/api/submissions", { ...payload, verified: true })).status, 400);
   check((await a("/api/submissions", { ...payload, phone: "9999999999" })).status, 400);
   check((await a("/api/submissions", { ...payload, website: "spam.example" })).status, 400);
@@ -92,13 +92,13 @@ async function main() {
   check((await a("/api/submissions", payload)).data.receipt.id, requestId);
   check((await a("/api/submissions", { ...payload, dealerId: "2" })).status, 409);
   check((await a("/api/submissions/status", { requestId })).data.receipt.id, requestId);
-  check((await a("/api/otp/start", { ...start, requestId: randomUUID() })).status, 409);
+  check((await a("/api/otp/start", { ...start, requestId: randomUUID() })).data.verification.status, "verified");
   check((await a("/api/jobs/sheets", {})).status, 403);
   await b("/api/form");
   check((await b("/api/submissions/status", { requestId })).data.receipt, null);
   check((await b("/api/otp/resume", { phone })).data.verification, null);
   check((await b("/api/otp/verify", { attemptId, code: "123456" })).status, 404);
-  check((await b("/api/otp/start", { ...start, requestId: randomUUID() })).status, 409);
+  check((await b("/api/otp/start", { ...start, requestId: randomUUID() })).status, 429);
   const nextPhone = "9876501235", nextAttempt = randomUUID();
   check((await b("/api/otp/start", { requestId: nextAttempt, phone: nextPhone, consent: true })).status, 200);
   check((await b("/api/otp/verify", { attemptId: nextAttempt, code: "123456" })).status, 200);
@@ -107,13 +107,30 @@ async function main() {
   check((await b("/api/proofs",upload(randomUUID(),"upi",png,nextAttempt))).status,409);
   const png2=await sharp({create:{width:600,height:1200,channels:3,background:{r:180,g:40,b:80}}}).png().toBuffer();
   const secondProof=randomUUID();
-  const cashUpload=await b("/api/proofs",upload(secondProof,"cash",png2,nextAttempt));check(cashUpload.status,200);check(cashUpload.data.proof.height,500);
+  const cashUpload=await b("/api/proofs",upload(secondProof,"cash",png2,nextAttempt));check(cashUpload.status,200);check(cashUpload.data.proof.height,1080);
   const second={...payload,dealerId:"2",gender:"non_binary",proofId:secondProof,paymentMode:"cash",requestId:randomUUID(),attemptId:nextAttempt};
   check((await b("/api/submissions",second)).status,409);
   check((await b("/api/submissions",{...second,vin:"VIN-SECOND",batteryId:"BAT-SECOND",paymentMode:"upi"})).status,409);
   const cashSaved=await b("/api/submissions",{...second,vin:"VIN-SECOND",batteryId:"BAT-SECOND"});check(cashSaved.status,200);check(cashSaved.data.receipt.paymentMode,"cash");
   check((await browser()(view.pathname+view.search)).status,200);
   check((await a("/api/jobs/proofs",{})).status,403);
+  check((await a("/api/purchases/status",{attemptId})).data.purchaseStatus.count,1);
+  check((await b("/api/purchases/status",{attemptId})).status,404);
+  check((await a("/api/submissions",{...payload,colour:"Invented"})).status,400);
+  check((await a("/api/submissions",{...payload,connectivity:"standard"})).status,400);
+  const imageFor=async i=>sharp({create:{width:900,height:1400,channels:3,background:{r:20+i*20,g:90,b:180}}}).png().toBuffer();
+  const receiptIds=[];
+  for(let i=2;i<=5;i++){
+    const proof=randomUUID();const bytes=await imageFor(i);
+    check((await a("/api/proofs",upload(proof,"cash",bytes))).status,200);
+    const repeat={...payload,requestId:randomUUID(),proofId:proof,paymentMode:"cash",email:"",batteryId:"REPEAT-B-"+i,vin:"REPEAT-V-"+i,productId:"hum",colour:"Black",connectivity:"smart_plus",rangeVariant:"long",chargerType:"fast"};
+    const result=await a("/api/submissions",repeat);check(result.status,200);check(result.data.receipt.email,null);check(result.data.receipt.purchaseStatus.count,i);check(result.data.receipt.chargerType,"fast");receiptIds.push(result.data.receipt.id);
+    check((await a("/api/submissions",repeat)).data.receipt.id,result.data.receipt.id);
+  }
+  check(new Set(receiptIds).size,4);
+  check((await a("/api/proofs",upload(randomUUID(),"cash",await imageFor(6)))).data.error.code,"MONTHLY_PURCHASE_LIMIT");
+  check((await a("/api/submissions",{...payload,requestId:randomUUID(),batteryId:"SIXTH-B",vin:"SIXTH-V",proofId:randomUUID()})).data.error.code,"MONTHLY_PURCHASE_LIMIT");
+  check((await a("/api/purchases/status",{attemptId})).data.purchaseStatus.remaining,0);
   console.log(`Passed ${checks} HTTP checks against the isolated local demo. No external services were used.`);
 }
 try { await main(); }

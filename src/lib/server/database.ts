@@ -5,6 +5,8 @@ import { demoRpc } from "./demo";
 import { AppError } from "./errors";
 
 const messages: Record<string, [string, number]> = {
+  MONTHLY_PURCHASE_LIMIT: ["This number has reached five purchases for this calendar month. Try again next month.", 409],
+  INVALID_PRODUCT_OPTIONS: ["Choose all options for the selected product.", 400],
   INVALID_DEALER: ["Choose a dealer from the list.", 400],
   PROOF_REQUIRED: ["Upload the receipt or payment confirmation first.", 400],
   PROOF_MISMATCH: ["This image belongs to a different phone or payment mode. Choose the correct image.", 409],

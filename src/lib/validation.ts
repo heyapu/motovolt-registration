@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PRODUCT_IDS, validProductChoices } from "./product-catalog";
 import { getDealer } from "./dealers";
 
 export function normalizePhone(value: string): string {
@@ -27,14 +28,18 @@ export const fieldsSchema = z.object({
   gender: z.enum(["male", "female", "non_binary"], { error: "Select a gender." }),
   proofId: z.string().max(36),
   customerName: z.string().trim().min(2, "Enter the customer’s name.").max(100).refine(v => !/[\u0000-\u001f\u007f]/.test(v), "Name contains invalid characters."),
-  email: z.string().trim().max(254).pipe(z.email({ error: "Enter a valid email address." })).transform(v => v.toLowerCase()),
+  email: z.string().trim().max(254).refine(v => v === "" || z.email().safeParse(v).success, "Enter a valid email address or leave it blank.").transform(v => v.toLowerCase()).default(""),
   age: z.string().trim().regex(/^\d{1,3}$/, "Enter age in whole years.").refine(v => Number(v) >= 1 && Number(v) <= 120, "Age must be between 1 and 120."),
-  productId: z.enum(["urbn", "hum", "kivo", "m7"], { error: "Select a product." }),
+  productId: z.enum(PRODUCT_IDS, { error: "Select a product." }),
+  colour: z.string().max(40),
+  connectivity: z.enum(["", "standard", "smart_plus"]),
+  rangeVariant: z.enum(["", "normal", "long"]),
+  chargerType: z.enum(["", "normal", "fast"]),
   batteryId: identifier.refine(v => Boolean(v), "Battery ID is required."),
   vin: identifier.refine(v => Boolean(v), "VIN number is required."),
   paymentMode: z.enum(["cash", "upi", "card", "finance"], { error: "Select a payment mode." }),
-}).strict();
-export const submitSchema = fieldsSchema.extend({ proofId: z.uuid({ error: "Upload the payment proof before submitting." }), attemptId: z.uuid(), requestId: z.uuid(), website: z.string().max(200).default("") }).strict();
+}).strict().refine(validProductChoices, { message: "Choose all options for the selected product.", path: ["colour"] });
+export const submitSchema = fieldsSchema.safeExtend({ proofId: z.uuid({ error: "Upload the payment proof before submitting." }), attemptId: z.uuid(), requestId: z.uuid(), website: z.string().max(200).default("") }).strict();
 export const proofSchema = z.object({ attemptId: z.uuid(), proofId: z.uuid(), paymentMode: z.enum(["cash","upi","card","finance"]), website: z.string().max(200).default("") }).strict();
 export const resumeSchema = z.object({ phone: phoneSchema }).strict();
 export const existingSchema = z.object({

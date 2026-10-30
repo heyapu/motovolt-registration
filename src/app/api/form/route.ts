@@ -1,3 +1,4 @@
+import { PRODUCT_CATALOG } from "@/lib/product-catalog";
 import { openBrowser } from "@/lib/server/browser";
 import { route } from "@/lib/server/http";
 import { limitRead } from "@/lib/server/limits";
@@ -6,7 +7,5 @@ export const GET = route(async request => {
   validateConfiguration();
   const browserId = await openBrowser();
   await limitRead(request, browserId);
-  return { browserId, products: [
-    { id: "urbn", name: "URBN" }, { id: "hum", name: "Hum" }, { id: "kivo", name: "Kivo" }, { id: "m7", name: "M7" },
-  ], demo: demoEnabled(), turnstileSiteKey: demoEnabled() ? null : required("TURNSTILE_SITE_KEY") };
+  return { browserId, products: PRODUCT_CATALOG.map(({id,name}) => ({id,name})), demo: demoEnabled(), turnstileSiteKey: demoEnabled() ? null : required("TURNSTILE_SITE_KEY") };
 });

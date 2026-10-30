@@ -1,5 +1,5 @@
 // Increment this version for every release that changes the app shell.
-const CACHE = "motovolt-form-public-shell-v3";
+const CACHE = "motovolt-form-public-shell-v4";
 const PUBLIC_ASSETS = ["/", "/icon.svg", "/manifest.webmanifest"];
 self.addEventListener("install", (event) => {
   event.waitUntil(

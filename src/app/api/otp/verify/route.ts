@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { verifySchema } from "@/lib/validation";
 import type { Verification } from "@/lib/types";
-import { requireBrowser } from "@/lib/server/browser";
+import { openBrowser, requireBrowser } from "@/lib/server/browser";
 import { checkOrigin, readJson, route } from "@/lib/server/http";
 import { limitVerify } from "@/lib/server/limits";
 import { rpc } from "@/lib/server/database";
@@ -38,5 +38,6 @@ export const POST = route(async request => {
     if (finished.code === "OTP_EXPIRED") failed("OTP_EXPIRED");
     throw new AppError("OTP_PROVIDER_FAILED", "MSG91 could not verify this code. Request a fresh OTP if the issue persists.", 502);
   }
+  await openBrowser();
   return { verification: finished.verification };
 });
