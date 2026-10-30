@@ -246,7 +246,18 @@ export default function PublicForm() {
         setFields(next);
         try { await saveDraft({ browserId: context.browserId, requestId, verification, fields: next, queued: true, savedAt: Date.now(), proofImage, proofUploaded: false }); } catch { setStorageAvailable(false); }
         const form = new FormData();
-        form.set("attemptId", verification.id); form.set("proofId", proofId); form.set("paymentMode", fields.paymentMode); form.set("website", website); form.set("image", proofImage, "payment-proof.webp");
+        form.set("attemptId", verification.id); form.set("proofId", proofId); form.set("paymentMode", fields.paymentMode); form.set("website", website);
+
+        form.set(
+          "image",
+          proofImage,
+          proofImage.type === "image/png"
+            ? "payment-proof.png"
+            : proofImage.type === "image/webp"
+              ? "payment-proof.webp"
+              : "payment-proof.jpg",
+        );
+
         const { proof } = await api<{ proof: UploadedProof }>("/api/proofs", form);
         submissionFields = { ...next, proofId: proof.id };
         setFields(submissionFields); setProofUploaded(true);
