@@ -23,6 +23,7 @@ export type RegistrationFields = {
   batteryId: string;
   vin: string;
   paymentMode: "" | "cash" | "upi" | "card" | "finance";
+  financerName: string;
 };
 export type Receipt = {
   id: string;
@@ -45,6 +46,7 @@ export type Receipt = {
   paymentMode: "cash" | "upi" | "card" | "finance";
   submittedAt: string;
   sheetStatus: "pending" | "processing" | "done" | "needs_attention";
+  financerName: string | null;
 };
 export type FormContext = { browserId: string; products: Product[]; demo: boolean; turnstileSiteKey: string | null };
 export type SavedDraft = {

@@ -20,46 +20,33 @@ export const SHEET_HEADERS = [
   "Connectivity",
   "Range",
   "Charger",
+  "Financer name",
 ] as const;
 
-export type HeaderAction =
-  | "all"
-  | "extra"
-  | "new"
-  | "variants"
-  | "none";
+export type HeaderAction = "all" | "tail" | "none";
 
 export function headerAction(cells: unknown[]): HeaderAction {
-  const values = cells.map(value => String(value ?? "").trim());
+  const values = Array.from(
+    { length: SHEET_HEADERS.length },
+    (_, index) => String(cells[index] ?? "").trim(),
+  );
 
-  if (values.every(value => !value)) {
-    return "all";
-  }
-
-  for (const [length, action] of [
-    [9, "extra"],
-    [14, "new"],
-    [17, "variants"],
-  ] as const) {
-    const prefixMatches = SHEET_HEADERS
-      .slice(0, length)
-      .every((header, index) => values[index] === header);
-
-    const remainingEmpty = values
-      .slice(length, SHEET_HEADERS.length)
-      .every(value => !value);
-
-    if (prefixMatches && remainingEmpty) {
-      return action;
+  // Existing non-empty headers must match their expected positions.
+  for (let index = 0; index < SHEET_HEADERS.length; index++) {
+    if (
+      values[index] !== "" &&
+      values[index] !== SHEET_HEADERS[index]
+    ) {
+      throw new Error("SHEETS_HEADER_MISMATCH");
     }
   }
 
-  if (
-    SHEET_HEADERS.some(
-      (header, index) => values[index] !== header,
-    )
-  ) {
-    throw new Error("SHEETS_HEADER_MISMATCH");
+  if (values.every(value => value === "")) {
+    return "all";
+  }
+
+  if (values.some(value => value === "")) {
+    return "tail";
   }
 
   return "none";

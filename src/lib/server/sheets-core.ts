@@ -20,6 +20,10 @@ type SheetProperties = {
   };
 };
 
+type SheetValues = {
+  values?: unknown[][];
+};
+
 export async function createSheetWriter(
   config: SheetConfig,
   jobs: SheetJob[],
@@ -27,8 +31,42 @@ export async function createSheetWriter(
 ): Promise<(job: SheetJob) => Promise<void>> {
   const columnCount = SHEET_HEADERS.length;
 
+  // Convert a column number to its A1 label: 1 → A, 22 → V.
+  const columnLabel = (number: number): string => {
+    let label = "";
+
+    while (number > 0) {
+      number--;
+      label =
+        String.fromCharCode(65 + (number % 26)) + label;
+      number = Math.floor(number / 26);
+    }
+
+    return label;
+  };
+
+  const lastColumn = columnLabel(columnCount);
+
+  const validateJob = (job: SheetJob): void => {
+    if (
+      !Number.isSafeInteger(job.row) ||
+      job.row < 2 ||
+      !Array.isArray(job.values) ||
+      job.values.length !== columnCount ||
+      job.values[0] !== job.submissionId
+    ) {
+      throw new Error("SHEETS_INVALID_JOB");
+    }
+  };
+
+  if (!jobs.length) {
+    throw new Error("SHEETS_INVALID_JOB");
+  }
+
+  jobs.forEach(validateJob);
+
   const base =
-    `https://sheets.googleapis.com/v4/spreadsheets/` +
+    "https://sheets.googleapis.com/v4/spreadsheets/" +
     encodeURIComponent(config.sheetId);
 
   const tab = `'${config.tab.replace(/'/g, "''")}'`;
@@ -47,7 +85,9 @@ export async function createSheetWriter(
       signal: AbortSignal.timeout(8000),
     });
 
-  const response = await request(`${base}?fields=sheets.properties`);
+  const response = await request(
+    `${base}?fields=sheets.properties`,
+  );
 
   if (!response.ok) {
     throw new Error(`SHEETS_METADATA_${response.status}`);
@@ -65,17 +105,10 @@ export async function createSheetWriter(
     throw new Error("SHEETS_TAB_NOT_FOUND");
   }
 
-  if (
-    !jobs.length ||
-    jobs.some(job => !Number.isSafeInteger(job.row) || job.row < 2)
-  ) {
-    throw new Error("INVALID_SHEET_ROW");
-  }
-
-  const largest = Math.max(...jobs.map(job => job.row));
+  const largestRow = Math.max(...jobs.map(job => job.row));
 
   if (
-    largest > target.gridProperties.rowCount ||
+    largestRow > target.gridProperties.rowCount ||
     target.gridProperties.columnCount < columnCount
   ) {
     const grown = await request(`${base}:batchUpdate`, {
@@ -87,10 +120,10 @@ export async function createSheetWriter(
               properties: {
                 sheetId: target.sheetId,
                 gridProperties: {
-                  rowCount: Math.max(
-                    target.gridProperties.rowCount,
-                    largest + 1000,
-                  ),
+                  rowCount:
+                    largestRow > target.gridProperties.rowCount
+                      ? largestRow + 1000
+                      : target.gridProperties.rowCount,
                   columnCount: Math.max(
                     target.gridProperties.columnCount,
                     columnCount,
@@ -110,7 +143,7 @@ export async function createSheetWriter(
     }
   }
 
-  const headerRange = `${tab}!A1:U1`;
+  const headerRange = `${tab}!A1:${lastColumn}1`;
 
   const found = await request(
     `${base}/values/${encodeURIComponent(headerRange)}`,
@@ -120,23 +153,22 @@ export async function createSheetWriter(
     throw new Error(`SHEETS_HEADERS_${found.status}`);
   }
 
-  const foundValues = await found.json();
-  const action = headerAction(foundValues.values?.[0] || []);
+  const foundValues = (await found.json()) as SheetValues;
+  const currentHeaders = foundValues.values?.[0] || [];
+  const action = headerAction(currentHeaders);
 
   if (action !== "none") {
-    const startIndex =
-      action === "all" ? 0 :
-        action === "variants" ? 17 :
-          action === "new" ? 14 :
-            9;
+    const startIndex = SHEET_HEADERS.findIndex(
+      (_, index) =>
+        String(currentHeaders[index] ?? "").trim() === "",
+    );
 
-    const startColumn =
-      action === "all" ? "A" :
-        action === "variants" ? "R" :
-          action === "new" ? "O" :
-            "J";
+    if (startIndex < 0) {
+      throw new Error("SHEETS_HEADER_MISMATCH");
+    }
 
-    const range = `${tab}!${startColumn}1:U1`;
+    const startColumn = columnLabel(startIndex + 1);
+    const range = `${tab}!${startColumn}1:${lastColumn}1`;
 
     const saved = await request(
       `${base}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
@@ -156,16 +188,10 @@ export async function createSheetWriter(
   }
 
   return async job => {
-    if (
-      !Number.isSafeInteger(job.row) ||
-      job.row < 2 ||
-      job.values.length !== columnCount ||
-      job.values[0] !== job.submissionId
-    ) {
-      throw new Error("SHEETS_INVALID_JOB");
-    }
+    validateJob(job);
 
-    const range = `${tab}!A${job.row}:U${job.row}`;
+    const range =
+      `${tab}!A${job.row}:${lastColumn}${job.row}`;
 
     const occupied = await request(
       `${base}/values/${encodeURIComponent(range)}`,
@@ -175,11 +201,15 @@ export async function createSheetWriter(
       throw new Error(`SHEETS_READ_${occupied.status}`);
     }
 
-    const existing = await occupied.json();
+    const existing = (await occupied.json()) as SheetValues;
 
-    assertFreeRow(existing.values?.[0] || [], job.submissionId);
+    // Prevent overwriting a row belonging to another registration.
+    assertFreeRow(
+      existing.values?.[0] || [],
+      job.submissionId,
+    );
 
-    const write = await request(
+    const written = await request(
       `${base}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
       {
         method: "PUT",
@@ -191,8 +221,8 @@ export async function createSheetWriter(
       },
     );
 
-    if (!write.ok) {
-      throw new Error(`SHEETS_WRITE_${write.status}`);
+    if (!written.ok) {
+      throw new Error(`SHEETS_WRITE_${written.status}`);
     }
   };
 }
