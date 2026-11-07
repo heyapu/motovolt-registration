@@ -1785,6 +1785,13 @@ export const DEALERS: readonly Dealer[] = [
     "city": "Varanasi",
     "state": "Uttar Pradesh",
     "address": "D65/461 B, LAHARTARA CROSSING, NEAR VIDHAN TRAVELS, Varanasi, Varanasi, Uttar Pradesh, 221106"
+  },
+  {
+    "id": "265",
+    "name": "Motovolt Exclusive - M/S Maa Kali Agency",
+    "city": "Katihar",
+    "state": "Bihar",
+    "address": "Azad Garden, In front of D.S. College, Katihar, Bihar – 854105"
   }
 ];
 const dealerById = new Map(DEALERS.map(d => [d.id, d]));
