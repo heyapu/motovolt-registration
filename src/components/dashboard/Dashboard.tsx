@@ -19,18 +19,19 @@ import {
   offsetDate,
 } from "@/lib/dashboard/filters";
 import s from "./Dashboard.module.scss";
+import { BrandLogo } from "./BrandLogo";
 const nf = new Intl.NumberFormat("en-IN");
 const fmt = (n: number) => nf.format(n);
 const percent = (n: number, total: number) =>
   total ? Math.round((n / total) * 1000) / 10 : 0;
 const colours = [
-  "#a795ef",
-  "#95c9af",
-  "#ffc18b",
-  "#a9c8f4",
-  "#dbb1cd",
-  "#ced498",
-  "#c6c8d1",
+  "#F04E23",
+  "#04287F",
+  "#FDAA8D",
+  "#637FC1",
+  "#F57C5D",
+  "#A3B4DB",
+  "#D8DFEF",
 ];
 type Tab =
   | "Overview"
@@ -127,9 +128,6 @@ function Card({
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
         </div>
-        <span className={s.smallIcon}>
-          <Glyph kind="arrow" size={16} />
-        </span>
       </div>
       {children}
     </section>
@@ -222,8 +220,8 @@ function Trend({ data, monthly }: { data: Bucket[]; monthly: boolean }) {
       >
         <defs>
           <linearGradient id="mv-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#a795ef" stopOpacity=".35" />
-            <stop offset="100%" stopColor="#a795ef" stopOpacity=".02" />
+            <stop offset="0%" stopColor="#F04E23" stopOpacity=".35" />
+            <stop offset="100%" stopColor="#F04E23" stopOpacity=".02" />
           </linearGradient>
         </defs>
         {[0, 0.5, 1].map((v) => (
@@ -256,7 +254,7 @@ function Trend({ data, monthly }: { data: Bucket[]; monthly: boolean }) {
             <path
               d={path}
               fill="none"
-              stroke="#9279de"
+              stroke="#F04E23"
               strokeWidth="3"
               strokeLinejoin="round"
             />
@@ -266,7 +264,7 @@ function Trend({ data, monthly }: { data: Bucket[]; monthly: boolean }) {
                 cx={x}
                 cy={y}
                 r={data.length > 65 ? 2 : 4}
-                fill="#9279de"
+                fill="#F04E23"
                 stroke="white"
                 strokeWidth="1.5"
               >
@@ -387,7 +385,9 @@ function RankTable({
   );
   const shown = filtered.slice(page * 10, page * 10 + 10);
   useEffect(() => {
-    setPage(current => Math.min(current, Math.max(0, Math.ceil(filtered.length / 10) - 1)));
+    setPage((current) =>
+      Math.min(current, Math.max(0, Math.ceil(filtered.length / 10) - 1)),
+    );
   }, [filtered.length]);
   return (
     <>
@@ -657,11 +657,11 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
     return (
       <main className={s.gate}>
         <a className={s.gateBrand} href="/">
-          motovolt<span>dealer intelligence</span>
+          <BrandLogo height={28} />
         </a>
         <section className={s.gateCard}>
           <div className={s.gateIcon}>
-            <Glyph kind="lock" size={27} />
+            <BrandLogo height={28} />
           </div>
           <span className={s.eyebrow}>A clearer view of every ride</span>
           <h1>
@@ -718,7 +718,7 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
     <div className={s.shell}>
       <aside className={s.sidebar}>
         <a href="/dashboard" className={s.brand}>
-          m<span>motovolt</span>
+          <BrandLogo height={28} />
         </a>
         <span className={s.sidebarCaption}>Workspace</span>
         <nav aria-label="Dashboard sections">
@@ -765,7 +765,9 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
               <i />
               Internal
             </span>
-            <span className={s.avatar}>MV</span>
+            <span className={s.avatar}>
+              <BrandLogo height={18} />
+            </span>
           </div>
         </header>
         {previewData && (
@@ -983,7 +985,9 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
         )}
         {!data ? (
           <div className={s.skeleton} role="status">
-            {loading ? "Loading your analytics…" : "No analytics loaded. Adjust the filters or try again."}
+            {loading
+              ? "Loading your analytics…"
+              : "No analytics loaded. Adjust the filters or try again."}
             <div />
             <div />
             <div />
@@ -1046,11 +1050,6 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
                   </div>
                   <strong>{k.value}</strong>
                   <div className={s.kpiDetail}>{k.detail}</div>
-                  <div className={s.miniBlocks} aria-hidden="true">
-                    {Array.from({ length: 24 }, (_, j) => (
-                      <i key={j} style={{ opacity: 0.18 + (j / 24) * 0.65 }} />
-                    ))}
-                  </div>
                 </div>
               ))}
             </section>

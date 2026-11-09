@@ -1,7 +1,8 @@
 $ink: #24252a;
 $muted: #898a94;
 $line: #ececf0;
-$purple: #a795ef;
+$accent: #f04e23;
+$secondary: #04287f;
 .shell,
 .gate {
   font-family: Arial, Helvetica, sans-serif;
@@ -28,7 +29,7 @@ $purple: #a795ef;
   a:focus-visible,
   input:focus-visible,
   select:focus-visible {
-    outline: 2px solid #8068d2;
+    outline: 2px solid $accent;
   }
   button {
     cursor: pointer;
@@ -46,7 +47,7 @@ $purple: #a795ef;
       background 0.15s,
       transform 0.15s;
     &:hover:not(:disabled) {
-      background: #f4f2fa;
+      background: #fff3ee;
     }
     &:disabled {
       opacity: 0.5;
@@ -75,11 +76,11 @@ $purple: #a795ef;
     color: #a0a0aa;
   }
   .primary {
-    background: #27272d;
+    background: $secondary;
     color: white;
-    border-color: #27272d;
+    border-color: $secondary;
     &:hover:not(:disabled) {
-      background: #45414e;
+      background: #123b91;
     }
   }
 }
@@ -102,22 +103,17 @@ $purple: #a795ef;
 }
 .brand {
   display: flex;
-  gap: 10px;
+  gap: 9px;
   align-items: center;
-  font-weight: 900;
-  font-size: 24px;
-  letter-spacing: -0.06em;
-  &::first-letter {
-    background: $ink;
-    color: white;
-  }
-  .brandMark {
-    background: $ink;
-  }
+  color: $secondary;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.05em;
   span {
     font-size: 21px;
   }
 }
+
 .sidebarCaption {
   font-size: 11px;
   color: #a0a0a8;
@@ -128,7 +124,7 @@ $purple: #a795ef;
   flex-direction: column;
   gap: 7px;
   .navActive {
-    background: #28282e;
+    background: $secondary;
     color: white;
     box-shadow: 0 5px 12px #00000013;
   }
@@ -232,10 +228,10 @@ $purple: #a795ef;
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #e9e5f3;
+  background: #eaf0ff;
   font-size: 10px;
   font-weight: bold;
-  color: #655a82;
+  color: $secondary;
 }
 .pageHeading {
   display: flex;
@@ -355,17 +351,23 @@ $purple: #a795ef;
   }
 }
 .kpiDark {
-  background: #29292f;
-  border-color: #29292f;
+  background: $secondary;
+  border-color: $secondary;
   color: white;
   > div:first-child {
-    color: #dedee5;
+    color: #e4ebff;
   }
   .muted {
-    color: #a5a5af;
+    color: #b9c9ee;
   }
-  .miniBlocks i {
-    background: #b6a6f4;
+  .up {
+    color: #ffd0c1;
+  }
+  .down {
+    color: #ffb4a0;
+  }
+  .kpiDetail small {
+    color: #b9c9ee;
   }
 }
 .kpiDetail {
@@ -379,26 +381,16 @@ $purple: #a795ef;
   }
 }
 .up {
-  color: #6ba084;
+  color: #237344;
   font-size: 11px;
   font-weight: bold;
 }
 .down {
-  color: #bd786f;
+  color: #b43226;
   font-size: 11px;
   font-weight: bold;
 }
-.miniBlocks {
-  display: flex;
-  gap: 3px;
-  margin-top: 14px;
-  height: 19px;
-  i {
-    background: #b8a9ed;
-    flex: 1;
-    border-radius: 3px;
-  }
-}
+
 .card {
   background: white;
   border: 1px solid $line;
@@ -425,16 +417,7 @@ $purple: #a795ef;
     line-height: 1.5;
   }
 }
-.smallIcon {
-  border: 1px solid #ededf1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  color: #8b8b94;
-  flex-shrink: 0;
-}
+
 .overviewGrid {
   display: grid;
   grid-template-columns: 1.55fr 1fr;
@@ -491,7 +474,7 @@ $purple: #a795ef;
   i {
     width: 6px;
     height: 6px;
-    background: $purple;
+    background: $accent;
     border-radius: 50%;
   }
 }
@@ -595,7 +578,7 @@ $purple: #a795ef;
 }
 .track {
   height: 7px;
-  background: #f6f5f9;
+  background: #f0f3fa;
   border-radius: 3px;
   overflow: hidden;
   > span {
@@ -614,8 +597,8 @@ $purple: #a795ef;
   display: flex;
   align-items: center;
   gap: 15px;
-  border: 1px solid #e5e2f0;
-  background: #eeebf6;
+  border: 1px solid #f8d9cf;
+  background: #fff4ef;
   border-radius: 12px;
   padding: 19px 23px;
   margin-bottom: 20px;
@@ -626,7 +609,7 @@ $purple: #a795ef;
     gap: 5px;
     > span {
       font-size: 10px;
-      color: #8c839d;
+      color: #a75a43;
     }
     strong {
       font-size: 14px;
@@ -635,7 +618,7 @@ $purple: #a795ef;
     }
     small {
       font-size: 10px;
-      color: #9c94ac;
+      color: #8b736c;
     }
   }
 }
@@ -643,7 +626,7 @@ $purple: #a795ef;
   display: grid;
   place-items: center;
   background: white;
-  color: #8d7cb5;
+  color: $accent;
   border-radius: 10px;
   width: 42px;
   height: 42px;
@@ -659,7 +642,7 @@ $purple: #a795ef;
   }
   span {
     font-size: 10px;
-    color: #908899;
+    color: #8b736c;
   }
 }
 .tableTools {
@@ -729,15 +712,15 @@ $purple: #a795ef;
   place-items: center;
   width: 24px;
   height: 24px;
-  background: #f4f3f8;
+  background: #edf2ff;
   border-radius: 7px;
   font-size: 10px;
-  color: #7a7389;
+  color: $secondary;
 }
 .share {
   width: 65px;
   height: 4px;
-  background: #f0edf8;
+  background: #edf2ff;
   border-radius: 2px;
   display: inline-block;
   margin-right: 9px;
@@ -746,7 +729,7 @@ $purple: #a795ef;
   > span {
     display: block;
     height: 100%;
-    background: #a998de;
+    background: $secondary;
   }
 }
 .pagination {
@@ -808,14 +791,14 @@ $purple: #a795ef;
   text-align: center;
   flex-direction: column;
   gap: 10px;
-  color: #b4afc1;
+  color: #a8b5d1;
   p {
     font-size: 12px;
-    color: #73717c;
+    color: #666d7e;
   }
   small {
     font-size: 10px;
-    color: #a09ca9;
+    color: #9098a9;
   }
 }
 .error {
@@ -858,7 +841,7 @@ $purple: #a795ef;
   margin-bottom: 20px;
 }
 .gate {
-  background: #f3f2f5;
+  background: #f4f6fa;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -866,10 +849,14 @@ $purple: #a795ef;
   padding: 100px 20px 70px;
   position: relative;
   background-image:
-    radial-gradient(ellipse at 20% 10%, #e1dbee 0, transparent 40%),
-    radial-gradient(ellipse at 95% 90%, #e5e9df 0, transparent 45%);
+    radial-gradient(ellipse at 20% 10%, #fee7de 0, transparent 40%),
+    radial-gradient(ellipse at 95% 90%, #e0e8fb 0, transparent 45%);
 }
 .gateBrand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: $secondary;
   position: absolute;
   top: 35px;
   left: 40px;
@@ -889,9 +876,9 @@ $purple: #a795ef;
   max-width: 100%;
   padding: 37px;
   background: white;
-  border: 1px solid #e7e5ed;
+  border: 1px solid #e5e9f1;
   border-radius: 23px;
-  box-shadow: 0 20px 75px #332b4910;
+  box-shadow: 0 20px 75px #04287f10;
   .eyebrow {
     display: block;
     margin-top: 24px;
@@ -906,7 +893,7 @@ $purple: #a795ef;
   > p {
     font-size: 13px;
     line-height: 1.8;
-    color: #8c8894;
+    color: #7e8491;
   }
   form {
     margin-top: 27px;
@@ -914,13 +901,13 @@ $purple: #a795ef;
     gap: 10px;
     label {
       font-size: 11px;
-      color: #7e7987;
+      color: #717a8e;
     }
     input {
       font-size: 14px;
       padding: 14px;
-      border-color: #e2dfe9;
-      background: #fdfcfe;
+      border-color: #dbe1ed;
+      background: #fdfdff;
     }
     button {
       margin-top: 5px;
@@ -935,11 +922,11 @@ $purple: #a795ef;
   }
 }
 .gateIcon {
-  width: 51px;
-  height: 51px;
+  width: 72px;
+  height: 64px;
   border-radius: 15px;
-  background: #eeebf7;
-  color: #8a78ac;
+  background: #fff3ee;
+  color: $accent;
   display: grid;
   place-items: center;
 }
@@ -949,15 +936,15 @@ $purple: #a795ef;
   justify-content: center;
   gap: 7px;
   font-size: 10px;
-  color: #aaa5b1;
-  border-top: 1px solid #efedf3;
+  color: #8b94a6;
+  border-top: 1px solid #e9edf5;
   padding-top: 22px;
   margin-top: 25px;
 }
 .gateBottom {
   position: absolute;
   bottom: 25px;
-  color: #aba6b3;
+  color: #8b94a6;
   font-size: 10px;
 }
 @media (min-width: 1500px) {
@@ -1193,10 +1180,7 @@ $purple: #a795ef;
       font-size: 31px;
     }
   }
-  .miniBlocks {
-    gap: 2px;
-    height: 15px;
-  }
+
   .kpiDetail {
     line-height: 1.6;
     small {
@@ -1301,5 +1285,16 @@ $purple: #a795ef;
   .shell *,
   .gate * {
     transition: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .gateBrand {
+    flex-wrap: wrap;
+    row-gap: 5px;
+  }
+  .gateBrand > span {
+    margin-left: 0;
+    font-size: 10px;
   }
 }
