@@ -1755,7 +1755,7 @@ export const DEALERS: readonly Dealer[] = [
     "id": "260",
     "name": "Motovolt Exclusive - Chaudhary Motors",
     "city": "Delhi",
-    "state": "New Delhi",
+    "state": "Delhi",
     "address": "Ground Floor, Shop, RR-26, 1, Main Rohtak Road, Block RR, Mianwali Nagar, Paschim Vihar, New Delhi, 110087"
   },
   {
