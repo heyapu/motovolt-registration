@@ -592,7 +592,7 @@ export const DEALERS: readonly Dealer[] = [
   {
     "id": "85",
     "name": "Motovolt - Premium | MOTOVOLT MOBILITY",
-    "city": "Taratala",
+    "city": "Kolkata",
     "state": "West Bengal",
     "address": "P-47, Taratala Rd, Taratala, Kolkata, West Bengal 700088"
   },
