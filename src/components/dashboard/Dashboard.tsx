@@ -20,6 +20,7 @@ import {
 } from "@/lib/dashboard/filters";
 import s from "./Dashboard.module.scss";
 import { BrandLogo } from "./BrandLogo";
+import { FinanceSettings } from "./FinanceSettings";
 const nf = new Intl.NumberFormat("en-IN");
 const fmt = (n: number) => nf.format(n);
 const percent = (n: number, total: number) =>
@@ -1154,7 +1155,7 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
                   </Card>
                   <Card
                     title="Finance partners"
-                    subtitle="Financer names as entered by dealers"
+                    subtitle="Financer names recorded on registrations"
                   >
                     <Bars data={data.financers} />
                   </Card>
@@ -1334,6 +1335,7 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
             )}
             {tab === "Operations" && (
               <>
+                <FinanceSettings />
                 <div className={s.twoGrid}>
                   <Card
                     title="Google Sheets sync"

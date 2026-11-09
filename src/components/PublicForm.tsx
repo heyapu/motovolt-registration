@@ -22,6 +22,7 @@ import { api, ApiError } from "@/lib/client/api";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/client/drafts";
 import { PAYMENT_LABELS, GENDER_LABELS } from "@/lib/types";
 import { DealerSelect } from "./DealerSelect";
+import { FinanceSelect } from "./FinanceSelect";
 import { getDealer } from "@/lib/dealers";
 import { BotCheck } from "./BotCheck";
 import { Icon } from "./Icon";
@@ -752,19 +753,13 @@ export default function PublicForm() {
                     {fields.paymentMode === "finance" && (
                       <label className={styles.field}>
                         Financer name
-                        <input
-                          type="text"
+                        <FinanceSelect
                           value={fields.financerName}
-                          onChange={event => setFields(current => ({
-                            ...current,
-                            financerName: event.target.value,
-                          }))}
-                          placeholder="Enter bank or finance company name"
-                          autoComplete="off"
-                          required
-                          minLength={2}
-                          maxLength={120}
                           disabled={locked || Boolean(busy)}
+                          onChange={financerName => setFields(current => ({
+                            ...current,
+                            financerName,
+                          }))}
                         />
                       </label>
                     )}
