@@ -23,7 +23,7 @@ import { clearDraft, loadDraft, saveDraft } from "@/lib/client/drafts";
 import { PAYMENT_LABELS, GENDER_LABELS } from "@/lib/types";
 import { DealerSelect } from "./DealerSelect";
 import { FinanceSelect } from "./FinanceSelect";
-import { getDealer } from "@/lib/dealers";
+import { useDealerDirectory } from "@/lib/client/use-dealer-directory";
 import { BotCheck } from "./BotCheck";
 import { Icon } from "./Icon";
 import styles from "./PublicForm.module.scss";
@@ -37,6 +37,7 @@ const alive = (v: Verification | null) =>
   Date.parse(v.verificationExpiresAt!) > Date.now();
 export default function PublicForm() {
   const [context, setContext] = useState<FormContext | null>(null);
+  const dealerDirectory = useDealerDirectory(Boolean(context));
   const [demo, setDemo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [phone, setPhone] = useState("");
@@ -269,6 +270,7 @@ export default function PublicForm() {
         e instanceof Error ? e.message : "Could not confirm this entry.",
       );
       if (e instanceof ApiError) {
+        if (e.code === "INVALID_DEALER") dealerDirectory.reload();
         submitRetryAt.current = Date.now() + Math.max(30, e.retryAfter) * 1000;
         if (["DUPLICATE_PHONE", "DUPLICATE_VIN", "DUPLICATE_BATTERY", "INVALID_INPUT", "INVALID_PRODUCT", "INVALID_PRODUCT_OPTIONS", "MONTHLY_PURCHASE_LIMIT", "INVALID_DEALER"].includes(e.code)) {
           // Rejected before commit: keep the details editable for correction.
@@ -292,7 +294,7 @@ export default function PublicForm() {
       working.current = false;
       setBusy("");
     }
-  }, [context, verification, fields, requestId, complete, website]);
+  }, [context, verification, fields, requestId, complete, website, dealerDirectory.reload]);
 
   useEffect(() => {
     if (!queued || !online || attention || expired || !context || receipt)
@@ -633,7 +635,7 @@ export default function PublicForm() {
                   </p>
                   <dl className={styles.receipt}>
                     {[
-                      ["Dealer", getDealer(fields.dealerId)?.name || ""],
+                      ["Dealer", dealerDirectory.dealers.find(dealer => dealer.id === fields.dealerId)?.name || `Dealer #${fields.dealerId}`],
                       ["Customer", fields.customerName],
                       ["Contact number", verification?.phone || ""],
                       [
@@ -689,7 +691,7 @@ export default function PublicForm() {
                     <h2>Customer details</h2>
                     <p>Check the details before submitting.</p>
                   </div>
-                  <DealerSelect value={fields.dealerId} onChange={dealerId => setFields(v => ({ ...v, dealerId }))} disabled={locked} />
+                  <DealerSelect dealers={dealerDirectory.dealers} loading={dealerDirectory.loading} error={dealerDirectory.error} value={fields.dealerId} onChange={dealerId => setFields(v => ({ ...v, dealerId }))} disabled={locked} />
                   <div className={styles.fieldGrid}>
                     <label className={styles.field}>
                       Name

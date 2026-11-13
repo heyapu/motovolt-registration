@@ -742,6 +742,10 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
               Private workspace<small>Passcode protected</small>
             </div>
           </div>
+          <a href="/dealers">
+            Manage dealers
+            <Glyph kind="pin" size={15} />
+          </a>
           <a href="/" target="_blank" rel="noreferrer">
             Registration form
             <Glyph kind="arrow" size={15} />

@@ -26,10 +26,10 @@ test("normalization treats local, country-code and spaced numbers as the same ph
   ])
     assert.throws(() => normalizePhone(value));
 });
-test("payloads reject client-supplied dealer, phone and verification claims", () => {
+test("payloads reject client-supplied dealer name, phone and verification claims", () => {
   const fields = {
-    dealerName: "Motovolt Store", customerName: "Customer Name",
-    email: "customer@example.com", age: "30", productId: "m7", batteryId: "", vin: "", paymentMode: "cash",
+    dealerId: "1", gender:"male", proofId:"", customerName: "Customer Name",
+    email: "customer@example.com", age: "30", productId: "m7", colour:"Yellow",connectivity:"",rangeVariant:"",chargerType:"", batteryId: "BAT-001", vin: "VIN-001", paymentMode: "cash",
   };
   assert.equal(fieldsSchema.safeParse(fields).success, true);
   assert.equal(
@@ -37,7 +37,7 @@ test("payloads reject client-supplied dealer, phone and verification claims", ()
       ...fields,
       attemptId: crypto.randomUUID(),
       requestId: crypto.randomUUID(),
-      dealerId: crypto.randomUUID(),
+      dealerName: "Forged Dealer",
       verified: true,
     }).success,
     false,
@@ -94,8 +94,19 @@ test("demo mode cannot activate under a production runtime", () => {
 });
 
 test("customer fields normalize email/IDs and reject invalid age, product and payment", () => {
- const fields = {dealerName:"Motovolt Store",customerName:"Test Customer",email:" TEST@Example.com ",age:"30",productId:"urbn",batteryId:" bat-001 ",vin:"vin-001",paymentMode:"upi"};
+ const fields = {dealerId:"1",gender:"female",proofId:"",customerName:"Test Customer",email:" TEST@Example.com ",age:"30",productId:"urbn",colour:"Yellow",connectivity:"standard",rangeVariant:"",chargerType:"",batteryId:" bat-001 ",vin:"vin-001",paymentMode:"upi"};
  const result = fieldsSchema.parse(fields);
+ // Dealer existence is checked by the database, so new IDs need no TS release.
+ assert.equal(fieldsSchema.safeParse({...fields,dealerId:"266"}).success,true);
  assert.equal(result.email,"test@example.com"); assert.equal(result.batteryId,"BAT-001"); assert.equal(result.vin,"VIN-001");
- for(const bad of [{age:"30.5"},{age:"0"},{age:"121"},{email:"invalid"},{productId:"mvs7"},{paymentMode:"crypto"},{vin:"bad space"}]) assert.equal(fieldsSchema.safeParse({...fields,...bad}).success,false);
+ for(const bad of [{age:"30.5"},{age:"0"},{age:"121"},{email:"invalid"},{productId:"unknown"},{paymentMode:"crypto"},{vin:"bad space"},{vin:""},{batteryId:""},{gender:"other"},{dealerId:""},{dealerId:"bad id"}]) assert.equal(fieldsSchema.safeParse({...fields,...bad}).success,false);
+});
+
+test("finance requires a financer; cash needs no proof; new database Dealer IDs are accepted structurally", () => {
+  const fields = { dealerId: "266", gender: "female", proofId: "", customerName: "Test Customer", email: "", age: "30", productId: "m7", colour: "Yellow", connectivity: "", rangeVariant: "", chargerType: "", batteryId: "BAT-NEW", vin: "VIN-NEW", paymentMode: "cash" };
+  const ids = { attemptId: crypto.randomUUID(), requestId: crypto.randomUUID() };
+  assert.equal(submitSchema.safeParse({ ...fields, ...ids }).success, true);
+  assert.equal(submitSchema.safeParse({ ...fields, ...ids, paymentMode: "finance", financerName: "" }).success, false);
+  assert.equal(submitSchema.safeParse({ ...fields, ...ids, paymentMode: "finance", financerName: "Bajaj Fin LTD" }).success, true);
+  assert.equal(submitSchema.safeParse({ ...fields, ...ids, dealerName: "Forged" }).success, false);
 });

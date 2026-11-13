@@ -12,6 +12,7 @@ export type RegistrationFields = {
   dealerId: string;
   gender: "" | "male" | "female" | "non_binary";
   proofId: string;
+  financerName: string;
   customerName: string;
   email: string;
   age: string;
@@ -23,7 +24,6 @@ export type RegistrationFields = {
   batteryId: string;
   vin: string;
   paymentMode: "" | "cash" | "upi" | "card" | "finance";
-  financerName: string;
 };
 export type Receipt = {
   id: string;
@@ -31,6 +31,7 @@ export type Receipt = {
   dealerId: string | null;
   gender: "male" | "female" | "non_binary" | null;
   paymentProofUrl: string | null;
+  financerName: string | null;
   phone: string;
   customerName: string;
   email: string | null;
@@ -46,7 +47,6 @@ export type Receipt = {
   paymentMode: "cash" | "upi" | "card" | "finance";
   submittedAt: string;
   sheetStatus: "pending" | "processing" | "done" | "needs_attention";
-  financerName: string | null;
 };
 export type FormContext = { browserId: string; products: Product[]; demo: boolean; turnstileSiteKey: string | null };
 export type SavedDraft = {

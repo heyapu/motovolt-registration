@@ -43,5 +43,5 @@ export function FinanceSettings() {
  {error && <p className={s.error} role="alert">{error}</p>}
  {loading ? <p role="status">Loading finance options…</p> : <ul>{options.map(option => <li key={option.id}><div><strong>{option.name}</strong><span>{option.active ? "Available in registration form" : "Disabled · not available in form"}</span></div><button type="button" role="switch" aria-checked={option.active} aria-label={`Enable ${option.name}`} disabled={busy !== null} onClick={() => void toggle(option)} className={option.active ? s.enabled : ""}>{busy === option.id ? "Saving…" : option.active ? "Enabled" : "Enable"}</button></li>)}</ul>}
  <button type="button" onClick={() => setRetry(v => v + 1)} disabled={loading || busy !== null}>Refresh settings</button>
- <small>Existing registrations keep their saved financer. Open forms reload options on focus or with Refresh finance options.</small></section>;
+ <small>Existing registrations keep their saved financer. Open forms reload finance options when the window regains focus.</small></section>;
 }

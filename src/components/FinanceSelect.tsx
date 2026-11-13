@@ -11,7 +11,6 @@ export function FinanceSelect({ value, disabled, onChange }: {
     }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    // const [retry, setRetry] = useState(0);
     const current = useRef({ value, onChange });
     current.current = { value, onChange };
     useEffect(() => {
@@ -47,12 +46,10 @@ export function FinanceSelect({ value, disabled, onChange }: {
         window.addEventListener("focus", focus);
         return () => { active = false; controller.abort(); window.removeEventListener("focus", focus); };
     }, []);
-    return <>
-        <select value={value} required disabled={disabled} onChange={event => onChange(event.target.value)} aria-label="Financer name">
-            <option value="" disabled>{loading ? "Loading finance options…" : options.length ? "Choose a financer" : "No finance options available"}</option>
-            {options.map(option => <option key={option.id} value={option.name}>{option.name}</option>)}
-        </select>
-        {error && <small role="alert">{error}</small>}
-        {/* <button type="button" onClick={() => setRetry(v => v + 1)} disabled={disabled || loading}>Refresh finance options</button> */}
-    </>;
+    return <><select value={value} required disabled={disabled} onChange={event => onChange(event.target.value)} aria-label="Financer name">
+ <option value="" disabled>{loading ? "Loading finance options…" : options.length ? "Choose a financer" : "No finance options available"}</option>
+ {options.map(option => <option key={option.id} value={option.name}>{option.name}</option>)}
+ </select>
+ {error && <small role="alert">{error}</small>}
+ </>;
 }
