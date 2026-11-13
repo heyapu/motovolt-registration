@@ -666,9 +666,9 @@ export function Dashboard({ previewData }: { previewData?: DashboardData }) {
           </div>
           <span className={s.eyebrow}>A clearer view of every ride</span>
           <h1>
-            Your business.
+            Enter the
             <br />
-            In perspective.
+            Access code
           </h1>
           <p>
             Enter the dashboard access code to explore customer and dealer

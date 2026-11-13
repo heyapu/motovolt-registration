@@ -89,7 +89,7 @@ export function DealerManager() {
   }
   return <main className={s.page}>
     <header className={s.header}>
-      <a href="/" className={s.brand}><BrandLogo height={31} /><span>motovolt</span></a>
+      <a href="/" className={s.brand}><BrandLogo height={31} /></a>
       <nav aria-label="Main navigation"><a href="/dashboard">Dashboard</a><a href="/">Registration form</a>
         {authorized && <button type="button" onClick={() => void logout()} disabled={Boolean(busy)}>Sign out</button>}
       </nav>

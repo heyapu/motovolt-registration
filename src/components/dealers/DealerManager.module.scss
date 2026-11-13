@@ -5,7 +5,7 @@ $line: #e4e8ef;
   min-height: 100vh;
   background: #f5f6f8;
   color: #24252a;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: inherit;
   padding: 0 max(22px, calc((100vw - 1280px) / 2)) 48px;
   * { box-sizing: border-box; }
   a { color: $blue; text-decoration: none; }

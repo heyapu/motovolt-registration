@@ -1,12 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.scss";
+import { Rethink_Sans } from "next/font/google";
+
+const rethinkSans = Rethink_Sans({
+  subsets: ["latin"],
+  variable: "--font-rethink-sans",
+  display: "swap",
+  weight: "variable",
+});
 
 export const metadata: Metadata = {
   title: "Motovolt · Customer Registration",
   description: "Motovolt customer registration.",
   robots: { index: false, follow: false },
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icon.svg" },
+  icons: { icon: "/favicon.ico" },
 };
 export const viewport: Viewport = {
   width: "device-width",
@@ -20,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={rethinkSans.variable}>{children}</body>
     </html>
   );
 }
